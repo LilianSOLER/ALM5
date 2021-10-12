@@ -28,7 +28,7 @@ KEYBOARD=-k en-us
 # UNLESS YOU KNOW WHAT YOU ARE DOING
 ####################################################################
 
-all: kernel.bin main.s square.s
+all: kernel.bin main.s
 
 clean: 
 	rm -f *.o kernel.elf kernel.bin main.s square.s
@@ -42,7 +42,6 @@ main.o: main.c Makefile
 		-mcpu=arm926ej-s -gstabs+\
 		-Wall -g -o $@\
 		$<
-
 square.o: square.c Makefile
 	$(TOOLCHAIN)-gcc -c\
 		-mcpu=arm926ej-s -gstabs+\
@@ -57,6 +56,6 @@ gdb: kernel.bin
 
 main.s: main.c Makefile
 	$(TOOLCHAIN)-gcc --specs=nosys.specs -O0 -Wall -S main.c
-
 square.s: square.c Makefile
-	$(TOOLCHAIN)-gcc --specs=nosys.specs -O0 -Wall -S square.c	
+	$(TOOLCHAIN)-gcc --specs=nosys.specs -O0 -Wall -S square.c
+	
