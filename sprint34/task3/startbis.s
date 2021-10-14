@@ -1,55 +1,35 @@
 .global _start
-_start:
-	mov sp, #0xFF
-	mov r0, pc
-	b .L1
-	.word array
 
-.L1:
-	mov r1, #0 @sommme
-	mov r2, #0 @élément du tableau
-	@put the address of the array in r3
-	ldr r3 , =array @début du tableau$
-	b .loop
+.data @zone des donnees
+	array1:
+		.word 0x04 @premier élément du tableau
+		.word 0x02 @deuxième élément du tableau
+		.word 0x01
+		.word 0x00
 
-.loop:
-	ldr r2, [r3]
-	cmp r2, #0
-	beq _halt
-	add r1, r2, r1
-	add r3, #4
-	b .loop
+.text @zone des instructions
+	_start:
+		mov sp, #0xFF
+		b _L1
+		.word array1
 
-array:
-	.word 0x04
-	.word 0x02
-	.word 0x01
-	.word 0x00
+	_L1:
+		mov r1, #0 @sommme
+		mov r2, #0 @élément du tableau
+		ldr r3 , =array1 @début du tableau$
+		b _loop
 
-@ .createArray:
-@ 	mov r1, #2
-@ 	mov r2, #0
-@ 	mov r3, #5
+	_loop:
+		ldr r2, [r3] @lire l'élément du tableau
+		cmp r2, #0 @si élément = 0
+		beq _halt @deuxième cas
+		add r1, r2, r1 @somme += élément du tableau
+		add r3, #4 @adresse suivante
+		b _loop @continuer
 
-@ .createArrayLoop:
-@ 	ldr r1,[r2,#8]
-@ 	str 0x12345678, [r1]
-@ 	cmp r3, #0
-@ 	beq .L1
-@ 	sub r3, #1
-@ 	b .createArrayLoop
-
-@ .L1:
-@ 	mov r3, #0
-@ 	mov r1, #0
-@ 	ldr r2, [0x12345678,r1]
-@ 	cmp r2, #0
-@ 	beq _halt
-@ 	add r3, r2, r3
-@ 	add r1, r1, #8
-@ 	b .L1
-
-_halt:
-	b _halt
-	
-	
+	_halt:
+		mov r0, #0x4 @afficher bye
+		svc #0x80 @appel syscall
+		@fin du programme
+		
+		
