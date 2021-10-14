@@ -37,8 +37,8 @@ kernel.bin: start.o Makefile ldscript
 	$(TOOLCHAIN)-ld -T ldscript start.o -o kernel.elf
 	$(TOOLCHAIN)-objcopy -O binary kernel.elf kernel.bin
 
-start.o: start.s Makefile 
-	$(TOOLCHAIN)-as -mcpu=arm926ej-s -gstabs+ start.s -o start.o
+start.o: startbis.s Makefile 
+	$(TOOLCHAIN)-as -mcpu=arm926ej-s -gstabs+ startbis.s -o start.o
 
 qemu: kernel.bin
 	$(QEMU) -M versatilepb -nographic -m 64M -gdb tcp::1234 -S $(KEYBOARD) -kernel kernel.bin 
