@@ -31,15 +31,17 @@ KEYBOARD=-k en-us
 all: kernel.bin 
 
 clean: 
-	rm -f start.o kernel.elf kernel.bin
+	rm -f start.o sum.o kernel.elf kernel.bin
 
 kernel.bin: start.o Makefile ldscript
-	$(TOOLCHAIN)-ld -T ldscript start.o -o kernel.elf
+	$(TOOLCHAIN)-ld -T ldscript start.o sum.o -o kernel.elf
 	$(TOOLCHAIN)-objcopy -O binary kernel.elf kernel.bin
 
 start.o: startbis.s Makefile 
 	$(TOOLCHAIN)-as -mcpu=arm926ej-s -gstabs+ startbis.s -o start.o
 
+sum.o: sum.s Makefile
+		$(TOOLCHAIN)-as -mcpu=arm926ej-s -gstabs+ sum.s -o sum.o
 qemu: kernel.bin
 	$(QEMU) -M versatilepb -nographic -m 64M -gdb tcp::1234 -S $(KEYBOARD) -kernel kernel.bin 
 
