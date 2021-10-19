@@ -28,12 +28,15 @@ KEYBOARD=-k en-us
 # UNLESS YOU KNOW WHAT YOU ARE DOING
 ####################################################################
 
-all: tab
+all: tab somme
+
 clean: 
-	rm -f tab
+	rm -f tab somme
 
 
 tab: tab.c 
 	gcc tab.c -Wall -o  tab
 
+sommetab: sommetab.c 
+	gcc sommetab.c -Wall -o sommetab
 

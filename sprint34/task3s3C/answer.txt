@@ -1,0 +1,14 @@
+Dans un tableau .L2
+
+mov r3, .L2
+ldr r2, [r3]
+
+0x13008 -> r3 (pointent vers x)
+
+??
+
+mov	r2, #3
+str	r2, [r3]
+
+mov	r2, #4
+str	r2, [r3]

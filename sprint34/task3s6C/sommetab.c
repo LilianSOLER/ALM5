@@ -5,6 +5,12 @@
 int somme(int tab[])
 {
     //A completer
+    int sum = 0;
+    for (int i = 0; i < TAILLE; i++)
+    {
+        sum += tab[i];
+    }
+    return sum;
 }
 
 int main()
