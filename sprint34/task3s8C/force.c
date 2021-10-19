@@ -13,7 +13,11 @@ int main()
     c=*p;
     printf("1er octet en memoire de res sous forme de caractere: %c\n",c);
     printf("1er octet en memoire de res sous forme décimal: %d\n",c);
-  /*  printf("2eme octet en memoire de res: %d\n",*(p+1));
-    printf("2eme octet en memoire de res: %c\n",*((char*)p+1));*/
+    printf("2eme octet en memoire de res sous forme décimal:: %d\n",*(p+1));
+    printf("2eme octet en memoire de res sous forme de caractere: %c\n",*((char*)p+1));
+    printf("3eme octet en memoire de res sous forme décimal:: %d\n",*(p+2));
+    printf("3eme octet en memoire de res sous forme de caractere: %c\n",*((char*)p+2));
+    printf("4eme octet en memoire de res sous forme décimal:: %d\n",*(p+3));
+    printf("4eme octet en memoire de res sous forme de caractere: %c\n",*((char*)p+3));
 }
 
