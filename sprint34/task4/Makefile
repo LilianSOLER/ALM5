@@ -31,14 +31,17 @@ KEYBOARD=-k en-us
 all: kernel.bin binary_tree.s binary_tree_no-O1.s
 
 clean: 
-	rm -f start.o kernel.elf kernel.bin binary_tree.s binary_tree_no-O1.s
+	rm -f start.o fact.o kernel.elf kernel.bin binary_tree.s binary_tree_no-O1.s
 
 kernel.bin: start.o Makefile ldscript
-	$(TOOLCHAIN)-ld -T ldscript start.o -o kernel.elf
+	$(TOOLCHAIN)-ld -T ldscript start.o fact.o -o kernel.elf
 	$(TOOLCHAIN)-objcopy -O binary kernel.elf kernel.bin
 
 start.o: start.s Makefile 
 	$(TOOLCHAIN)-as -mcpu=arm926ej-s -gstabs+ start.s -o start.o
+
+fact.o: fact.s Makefile 
+	$(TOOLCHAIN)-as -mcpu=arm926ej-s -gstabs+ fact.s -o fact.o	
 
 qemu: kernel.bin
 	$(QEMU) -M versatilepb -nographic -m 64M -gdb tcp::1234 -S $(KEYBOARD) -kernel kernel.bin 

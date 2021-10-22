@@ -1,7 +1,7 @@
 .global _start
 _start:
 	mov sp, #0xFF
-	b _halt
+	bl _fact
 	
 _halt:
 	b _halt
