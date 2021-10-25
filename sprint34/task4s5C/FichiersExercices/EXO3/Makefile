@@ -1,7 +1,6 @@
 
 # Choose your Qemu, set to your own path
 QEMU=qemu-system-arm
-
 # Choose your toolchain for ARM 
 TOOLCHAIN=arm-none-eabi
 
@@ -28,40 +27,20 @@ KEYBOARD=-k en-us
 # UNLESS YOU KNOW WHAT YOU ARE DOING
 ####################################################################
 
-all: kernel.bin
+all: kernel.bin 
 
 clean: 
-	rm -f *.o kernel.elf kernel.bin pingpong.s pingpong.o
+	rm -f start.o kernel.elf kernel.bin io.o
 
-kernel.bin: fold6.o Makefile ldscript
-	$(TOOLCHAIN)-ld -T ldscript $< -o kernel.elf
+kernel.bin: start.o io.o
+	$(TOOLCHAIN)-ld -T ldscript start.o io.o -o kernel.elf
 	$(TOOLCHAIN)-objcopy -O binary kernel.elf kernel.bin
 
-pingpong.o: pingpong.c Makefile
-	$(TOOLCHAIN)-gcc -c\
-		-mcpu=arm926ej-s\
-		-Wall -g -O0 -o $@\
-		$<
+start.o: start.s 
+	$(TOOLCHAIN)-as -mcpu=arm926ej-s -gstabs+ start.s -o start.o
 
-fact.o: fact.c Makefile
-	$(TOOLCHAIN)-gcc -c\
-		-Wall -g -O0 -o $@\
-		$<
-
-parties.o: parties.c Makefile
-	$(TOOLCHAIN)-gcc -c\
-		-Wall -g -O0 -o $@\
-		$<
-
-fold6.o: fold6.c Makefile
-	$(TOOLCHAIN)-gcc -c\
-		-Wall -g -O0 -o $@\
-		$<
-
-fold3.o: fold3.c Makefile
-	$(TOOLCHAIN)-gcc -c\
-		-Wall -g -O0 -o $@\
-		$<
+io.o: io.s 
+	$(TOOLCHAIN)-as -mcpu=arm926ej-s -gstabs+ io.s -o io.o
 
 qemu: kernel.bin
 	$(QEMU) -M versatilepb -nographic -m 64M -gdb tcp::1234 -S $(KEYBOARD) -kernel kernel.bin 
@@ -69,8 +48,3 @@ qemu: kernel.bin
 gdb: kernel.bin
 	$(GDB) kernel.elf
 
-pingpong.s: pingpong.c
-	$(TOOLCHAIN)-gcc --specs=nosys.specs -Wall -S $<
-
-fold6.s: fold6.c
-	$(TOOLCHAIN)-gcc --specs=nosys.specs -Wall -S $<

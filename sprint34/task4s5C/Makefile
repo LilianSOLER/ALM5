@@ -28,38 +28,18 @@ KEYBOARD=-k en-us
 # UNLESS YOU KNOW WHAT YOU ARE DOING
 ####################################################################
 
-all: kernel.bin
+all: kernel.bin erasto.s
 
 clean: 
-	rm -f *.o kernel.elf kernel.bin pingpong.s pingpong.o
+	rm -f *.o kernel.elf kernel.bin f erasto.s erasto.o erasto
 
-kernel.bin: fold6.o Makefile ldscript
+kernel.bin: erasto.o Makefile ldscript
 	$(TOOLCHAIN)-ld -T ldscript $< -o kernel.elf
 	$(TOOLCHAIN)-objcopy -O binary kernel.elf kernel.bin
 
-pingpong.o: pingpong.c Makefile
+erasto.o: erasto.c Makefile
 	$(TOOLCHAIN)-gcc -c\
 		-mcpu=arm926ej-s\
-		-Wall -g -O0 -o $@\
-		$<
-
-fact.o: fact.c Makefile
-	$(TOOLCHAIN)-gcc -c\
-		-Wall -g -O0 -o $@\
-		$<
-
-parties.o: parties.c Makefile
-	$(TOOLCHAIN)-gcc -c\
-		-Wall -g -O0 -o $@\
-		$<
-
-fold6.o: fold6.c Makefile
-	$(TOOLCHAIN)-gcc -c\
-		-Wall -g -O0 -o $@\
-		$<
-
-fold3.o: fold3.c Makefile
-	$(TOOLCHAIN)-gcc -c\
 		-Wall -g -O0 -o $@\
 		$<
 
@@ -69,8 +49,8 @@ qemu: kernel.bin
 gdb: kernel.bin
 	$(GDB) kernel.elf
 
-pingpong.s: pingpong.c
+erasto.s: erasto.c
 	$(TOOLCHAIN)-gcc --specs=nosys.specs -Wall -S $<
 
-fold6.s: fold6.c
-	$(TOOLCHAIN)-gcc --specs=nosys.specs -Wall -S $<
+erasto: erastoprint.c
+	gcc erastoprint.c -Wall -o  erasto
