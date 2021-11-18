@@ -1,0 +1,7 @@
+include "exDocV6.lus"
+----------------------------------------------------------------------
+function ciruitg2 (a, b, c, d : bool) returns (s : bool);
+let
+s = circuit(circuit(a,b,c),d, true);
+tel;
+----------------------------------------------------------------------

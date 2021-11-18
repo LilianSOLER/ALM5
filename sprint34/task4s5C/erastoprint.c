@@ -1,6 +1,6 @@
 #include<stdio.h>
 
-#define N 30
+#define N 100
 
 // --------------------------------------------
 // void affectab (char *tab, int i, int val)

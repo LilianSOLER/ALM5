@@ -48,68 +48,103 @@ affecttab:
 	.type	main, %function
 main:
 	@ Function supports interworking.
-	@ args = 0, pretend = 0, frame = 40
+	@ args = 0, pretend = 0, frame = 24
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
-	add	fp, sp, #4
-	sub	sp, sp, #40
+	push	{r4, r5, r6, fp, lr}
+	add	fp, sp, #16
+	sub	sp, sp, #28
+	mov	r3, sp
+	mov	r6, r3
+	mov	r3, #100
+	str	r3, [fp, #-32]
+	ldr	ip, [fp, #-32]
+	sub	r3, ip, #1
+	str	r3, [fp, #-36]
+	mov	r2, ip
 	mov	r3, #0
-	str	r3, [fp, #-8]
+	mov	r4, r2
+	mov	r5, r3
+	mov	r2, #0
+	mov	r3, #0
+	lsl	r3, r5, #3
+	orr	r3, r3, r4, lsr #29
+	lsl	r2, r4, #3
+	mov	r2, ip
+	mov	r3, #0
+	mov	r0, r2
+	mov	r1, r3
+	mov	r2, #0
+	mov	r3, #0
+	lsl	r3, r1, #3
+	orr	r3, r3, r0, lsr #29
+	lsl	r2, r0, #3
+	mov	r3, ip
+	add	r3, r3, #7
+	lsr	r3, r3, #3
+	lsl	r3, r3, #3
+	sub	sp, sp, r3
+	mov	r3, sp
+	add	r3, r3, #0
+	str	r3, [fp, #-40]
+	mov	r3, #0
+	str	r3, [fp, #-28]
 	b	.L3
 .L4:
-	sub	r3, fp, #44
 	mov	r2, #1
-	ldr	r1, [fp, #-8]
-	mov	r0, r3
+	ldr	r1, [fp, #-28]
+	ldr	r0, [fp, #-40]
 	bl	affecttab
-	ldr	r3, [fp, #-8]
+	ldr	r3, [fp, #-28]
 	add	r3, r3, #1
-	str	r3, [fp, #-8]
+	str	r3, [fp, #-28]
 .L3:
-	ldr	r3, [fp, #-8]
-	cmp	r3, #29
-	ble	.L4
+	ldr	r2, [fp, #-28]
+	ldr	r3, [fp, #-32]
+	cmp	r2, r3
+	blt	.L4
 	mov	r3, #2
-	str	r3, [fp, #-8]
+	str	r3, [fp, #-28]
 	b	.L5
 .L9:
-	sub	r2, fp, #44
-	ldr	r3, [fp, #-8]
+	ldr	r2, [fp, #-40]
+	ldr	r3, [fp, #-28]
 	add	r3, r2, r3
 	ldrb	r3, [r3]	@ zero_extendqisi2
 	cmp	r3, #0
 	beq	.L6
-	ldr	r3, [fp, #-8]
+	ldr	r3, [fp, #-28]
 	lsl	r3, r3, #1
-	str	r3, [fp, #-12]
+	str	r3, [fp, #-24]
 	b	.L7
 .L8:
-	sub	r3, fp, #44
 	mov	r2, #0
-	ldr	r1, [fp, #-12]
-	mov	r0, r3
+	ldr	r1, [fp, #-24]
+	ldr	r0, [fp, #-40]
 	bl	affecttab
-	ldr	r2, [fp, #-12]
-	ldr	r3, [fp, #-8]
+	ldr	r2, [fp, #-24]
+	ldr	r3, [fp, #-28]
 	add	r3, r2, r3
-	str	r3, [fp, #-12]
+	str	r3, [fp, #-24]
 .L7:
-	ldr	r3, [fp, #-12]
-	cmp	r3, #29
-	ble	.L8
+	ldr	r2, [fp, #-24]
+	ldr	r3, [fp, #-32]
+	cmp	r2, r3
+	blt	.L8
 .L6:
-	ldr	r3, [fp, #-8]
+	ldr	r3, [fp, #-28]
 	add	r3, r3, #1
-	str	r3, [fp, #-8]
+	str	r3, [fp, #-28]
 .L5:
-	ldr	r3, [fp, #-8]
-	cmp	r3, #29
-	ble	.L9
+	ldr	r2, [fp, #-28]
+	ldr	r3, [fp, #-32]
+	cmp	r2, r3
+	blt	.L9
+	mov	sp, r6
 	mov	r3, #0
 	mov	r0, r3
-	sub	sp, fp, #4
+	sub	sp, fp, #16
 	@ sp needed
-	pop	{fp, lr}
+	pop	{r4, r5, r6, fp, lr}
 	bx	lr
 	.size	main, .-main
-	.ident	"GCC: (GNU Tools for Arm Embedded Processors 8-2019-q3-update) 8.3.1 20190703 (release) [gcc-8-branch revision 273027]"
+	.ident	"GCC: (15:10.3-2021.07-1) 10.3.1 20210621 (release)"

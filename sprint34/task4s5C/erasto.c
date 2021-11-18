@@ -1,4 +1,4 @@
-#define N 30
+//#define N 100
 
 // --------------------------------------------
 // void affectab (char *tab, int i, int val)
@@ -14,6 +14,7 @@ void affecttab(char *tab, int i, int val)
 // --------------------------------------------
 int main()
 {
+int N = 100;
 char tab[N];
 int i, j;
 
