@@ -1,20 +1,31 @@
+--Circuit additionneur 1 bit
+--résultat z
+--c1 est C+1 retenu
 function add1bit (a, b, c : bool) returns (c1, z : bool);
 let
 z = not a and not b and c or not a and b and not c or a and b and c or a and not b and not c;
 c1 = not(not(a and b) and not(a and c) and not(b and c));
 tel;
 
+--Circuit additionneur n bit
+--résultat R
+--cout est la retenu
 function addnbits <<const n: int>>(A , B : bool^n ; cin : bool)
 returns (R : bool^n ; cout : bool);
 var retint: bool^n+1;
 let
 retint[0]= cin;
+--réalise n fois l'addition 1 bit avec A,B et la sortie du précédent en entrée (ou cin en entrée)
 (R, retint[1..n])= map<<add1bit, n >>( A, B, retint[0..n-1]);
 cout= retint[n];
 tel;
 
+--instancie l'additionneur n bits avec n = 4
 function instantiationadd4= addnbits<<4>>;
 
+--Circuit soustracteur 1 bit
+--resultat d
+--retenu t1
 function sub1bit (a, b, c : bool) returns (t1, d : bool);
 var t0: bool;
 let
@@ -22,15 +33,20 @@ let
 t1 = not t0;
 tel;
 
+--Circuit soustracteur n bit
+--résultat R
+--cout est la retenu
 function subnbits <<const n: int>>(A , B : bool^n ; cin : bool)
 returns (R : bool^n ; cout : bool);
 var retint: bool^n+1;
 let
 retint[0]= cin;
+--réalise n fois la soustraction 1 bit avec A,B et la sortie du précédent en entrée (ou cin en entrée)
 (R, retint[1..n])= map<<sub1bit, n >>( A, B, retint[0..n-1]);
 cout= retint[n];
 tel;
 
+--instancie l'additionneur n bits avec n = 1
 function nsub1bit= subnbits<<1>>;
 
 
