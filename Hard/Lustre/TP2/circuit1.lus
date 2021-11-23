@@ -3,3 +3,34 @@ let
 z = not a and not b and c or not a and b and not c or a and b and c or a and not b and not c;
 c1 = not(not(a and b) and not(a and c) and not(b and c));
 tel;
+
+function addnbits <<const n: int>>(A , B : bool^n ; cin : bool)
+returns (R : bool^n ; cout : bool);
+var retint: bool^n+1;
+let
+retint[0]= cin;
+(R, retint[1..n])= map<<add1bit, n >>( A, B, retint[0..n-1]);
+cout= retint[n];
+tel;
+
+function instantiationadd4= addnbits<<4>>;
+
+function sub1bit (a, b, c : bool) returns (t1, d : bool);
+var t0: bool;
+let
+(t0, d) = add1bit(a, not b, not c);
+t1 = not t0;
+tel;
+
+function subnbits <<const n: int>>(A , B : bool^n ; cin : bool)
+returns (R : bool^n ; cout : bool);
+var retint: bool^n+1;
+let
+retint[0]= cin;
+(R, retint[1..n])= map<<sub1bit, n >>( A, B, retint[0..n-1]);
+cout= retint[n];
+tel;
+
+function nsub1bit= subnbits<<1>>;
+
+
