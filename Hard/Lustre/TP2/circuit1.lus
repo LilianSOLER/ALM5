@@ -1,0 +1,5 @@
+function add1bit (a, b, c : bool) returns (c1, z : bool);
+let
+z = not a and not b and c or not a and b and not c or a and b and c or a and not b and not c;
+c1 = not(not(a and b) and not(a and c) and not(b and c));
+tel;
