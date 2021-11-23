@@ -1,0 +1,12 @@
+include "exDocV6.lus"
+----------------------------------------------------------------------
+function mux21_3bit(A, B : bool^3 ; s :bool) returns (F :bool^3);
+let
+F[0..2] = map <<mux1; 3>> (s^3, B[0..2], A[0..2]);
+tel;
+----------------------------------------------------------------------
+function mux4(a, b, c, d, s1, s2 :bool) returns (f :bool);
+let
+f = mux1(s2, mux1(s1, b, a), mux1(s1, d, c));
+tel;
+
