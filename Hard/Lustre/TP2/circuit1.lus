@@ -1,10 +1,10 @@
 --Circuit additionneur 1 bit
 --résultat z
 --c1 est C+1 retenu
-function add1bit (a, b, c : bool) returns (c1, z : bool);
+function add1bit (a, b, cin : bool) returns (z, c1 : bool);
 let
-z = not a and not b and c or not a and b and not c or a and b and c or a and not b and not c;
-c1 = not(not(a and b) and not(a and c) and not(b and c));
+	z = a xor (b xor cin) ; -- calcule le résultat
+	c1 = (a and b) or (b and cin) or (a and cin) ; --calcule la retenue
 tel;
 
 --Circuit additionneur n bit
@@ -21,7 +21,7 @@ cout= retint[n];
 tel;
 
 --instancie l'additionneur n bits avec n = 4
-function instantiationadd4= addnbits<<4>>;
+function add4= addnbits<<4>>;
 
 --Circuit soustracteur 1 bit
 --resultat d
@@ -49,4 +49,84 @@ tel;
 --instancie l'additionneur n bits avec n = 1
 function nsub1bit= subnbits<<1>>;
 
+function addV0 (uc0: bool ;a, b : bool^4) returns (v0: bool; To: bool^4);
+let
+(To, v0) = addnbits<<4>>(a, b, not uc0);
+tel;
 
+
+--Multiplexeur 1 bit de contrôle
+--renvoit a si uc = true, b sinon
+function mux1(a,b,uc :bool) returns(s: bool);
+let
+s = uc and a or not uc and b;
+tel;
+
+--Multiplexeur 2 bits de contrôle
+-- uc0|uc1|sortie
+--  0 | 0 | a 
+--  0 | 1 | b
+--  1 | 0 | C
+--  1 | 1 | d 
+function mux4(a,b,c,d :bool^4; uc0, uc1 :bool) returns(s: bool^4);
+let
+s[0]  =  a[0] and not uc0 and not uc1 or b[0] and not uc0 and uc1 or c[0] and uc0 and not uc1 or d[0] and uc0 and uc1;
+s[1]  =  a[1] and not uc0 and not uc1 or b[1] and not uc0 and uc1 or c[1] and uc0 and not uc1 or d[1] and uc0 and uc1;
+s[2]  =  a[2] and not uc0 and not uc1 or b[2] and not uc0 and uc1 or c[2] and uc0 and not uc1 or d[2] and uc0 and uc1;
+s[3]  =  a[3] and not uc0 and not uc1 or b[3] and not uc0 and uc1 or c[3] and uc0 and not uc1 or d[3] and uc0 and uc1;
+tel; 
+
+--Effectue une opération or entre chaque bit de T soit renvoit false si au moins un bit vaut true
+function nor4bits (T : bool^4) returns (o : bool);
+let
+o = not(T[0] or T[1] or T[2] or T[3]);
+tel;
+
+--Inverse un tableau de booléens
+function inverse <<const n:int>>(a : bool^n) returns (ainv : bool^n);
+let
+	ainv[0..n-1] = map <<not; n>>(a[0..n-1]); -- on inverse chaque bit un à un
+tel;
+
+function inv4bit = inverse<<4>>;
+
+--incremente un tableau de booléens
+function increment <<const n:int>>(a : bool^n) returns (aincr : bool^n; ret : bool);
+var tmp : bool^n;
+let
+  tmp[1..n-1] = false^(n-1);
+  tmp[0] = true;
+  (aincr, ret) = addnbits<<4>>(a, tmp, false);  
+tel;
+
+function incr4bit = increment<<4>>;
+
+--ULM
+function ulm(A, B : bool^4; uc0, uc1 :bool) returns (T: bool^4;C, N, Z, V : bool);
+var T0 : bool^4;
+var A0 : bool^4;
+var B0 : bool^4;
+var F0 : bool^4;
+var CN : bool;
+var CNincr : bool;
+var a, b, c, d : bool^4;
+let
+F0[0] = false; F0[1] = false; F0[2] = false; F0[3] = false;
+A0[0] = mux1(A[0], F0[0], uc0);A0[1] = mux1(A[1], F0[1], uc0);
+A0[2] = mux1(A[2], F0[2], uc0);A0[3] = mux1(A[3], F0[3], uc0);
+B0[0] = mux1(not B[0], B[0], uc1);B0[1] = mux1(not B[1], B[1], uc1);
+B0[2] = mux1(not B[2], B[2], uc1);B0[3] = mux1(not B[3], B[3], uc1);
+
+(T0, CN) = addnbits<<4>>(A0, B0, uc0);
+
+a = T0;
+b = inverse<<4>>(A);
+c = T0;
+(d, CNincr) = increment<<4>>(B);
+T = mux4(a, b, c, d, uc0, uc1);
+
+V = CN or CNincr ;
+C = mux1(not CN, CN, uc0);
+N = T[3] and not uc1; --bit de poids fort si on est en base 2 soit si uc1 = false
+Z = nor4bits(T);
+tel;
