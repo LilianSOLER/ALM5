@@ -17,8 +17,8 @@ let
 retint[0]= cin;
 --réalise n fois l'addition 1 bit avec A,B et la sortie du précédent en entrée (ou cin en entrée)
 (R, retint[1..n])= map<<add1bit, n >>( A, B, retint[0..n-1]);
-cout= retint[n];
-c1= retint[n-1];
+cout= retint[n];-- dernière retenu 
+c1= retint[n-1];-- avant dernière retenu
 tel;
 
 --instancie l'additionneur n bits avec n = 4
@@ -30,7 +30,7 @@ function add4= addnbits<<4>>;
 function sub1bit (a, b, c : bool) returns (t1, d : bool);
 var t0: bool;
 let
-(t0, d) = add1bit(a, not b, not c);
+(t0, d) = add1bit(a, not b, not c); --calcule le résultat en inversant b et la retenue
 t1 = not t0;
 tel;
 
@@ -51,19 +51,20 @@ tel;
 function nsub1bit= subnbits<<1>>;
 
 --Multiplexeur 1 bit de contrôle
---renvoit a si uc = true, b sinon
+--renvoit a si uc = false, b sinon
 function mux1(a,b,uc :bool) returns(s: bool);
 let
 s = not uc and a or uc and b;
 tel;
 
+--Multiplexeur n bit de contrôle avec 2 entrées bool^4
 function mux14(a,b: bool^4;uc :bool) returns(s: bool^4);
 let
-s[0..3] = map<<mux1; 4>>(a[0..3],b[0..3],uc^4);
+s[0..3] = map<<mux1; 4>>(a[0..3],b[0..3],uc^4);--on fait le mux sur les 4 bits de chaque entrée
 tel;
 
 --Multiplexeur 2 bits de contrôle
--- uc0|uc1|sortie
+-- uc1|uc0|sortie
 --  0 | 0 | a 
 --  0 | 1 | b
 --  1 | 0 | C
@@ -73,6 +74,7 @@ let
 s = mux1(mux1(a,b,uc0), mux1(c,d,uc0), uc1);
 tel;
 
+--Multiplexeur 2 bits de contrôle avec 2 entrées bool^4
 function mux24(a,b,c,d :bool^4; uc0, uc1 :bool) returns(s: bool^4);
 let
 s[0..3] = map<<mux2; 4>>(a[0..3],b[0..3],c[0..3],d[0..3],uc0^4,uc1^4);
@@ -90,44 +92,56 @@ let
 	ainv[0..n-1] = map <<not; n>>(a[0..n-1]); -- on inverse chaque bit un à un
 tel;
 
-function inv4bits = inverse<<4>>;
-function inv1bits = inverse<<1>>;
+function inv4bits = inverse<<4>>; --instancie la fonction inverse avec n = 4
+function inv1bits = inverse<<1>>; --instancie la fonction inverse avec n = 1
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 --ULM
+--Fonction qui renvoit le tableau de booléens de la valeur de l'ULM et ses flags asssociés
+--UC0, UC1 sont les deux bits de contrôle
+-- uc1|uc0|sortie
+--  0 | 0 | a -b  ( = a + (inv(b) + 1))
+--  0 | 1 | -a    ( = inv(a) + 1) + 0)
+--  1 | 0 | a + b ( = a + b) 
+--  1 | 1 | b + 1 ( = 0 + b + 1)
 function ulm(A, B : bool^4; uc0, uc1 :bool) returns (T, X, Y: bool^4;C, C0, C1, C2, N, Z, V : bool);
 var Z4, INV4,AOB : bool^4;
 let
-AOB = mux14(B, A, uc0);
-INV4 = inv4bits(AOB);
+AOB = mux14(B, A, uc0);--choix entre A et B en fonction de uc0 pour savoir qui va être inverser(négatif)
+INV4 = inv4bits(AOB); --inverse les bits de AOB
 
-Z4[0..3] = false^4;
+Z4[0..3] = false^4; --initialise le tableau Z4 à false
 
-X = mux24(A, INV4, A, Z4, uc0, uc1);
-Y = mux24(INV4, Z4, B, B, uc0, uc1);
+X = mux24(A, INV4, A, Z4, uc0, uc1); --choix de l'entrée X de l'additionneur en fonction de uc0 et uc1 : a, inv(a), a, 0
+Y = mux24(INV4, Z4, B, B, uc0, uc1); --choix de l'entrée Y de l'additionneur en fonction de uc0 et uc1 : inv(b), 0, b, b
 
-C0 = (not uc1) or (uc1 and uc0);
-(T, C1, C2) = add4(X, Y, C0);
+C0 = (not uc1) or (uc1 and uc0); --choix de la première retenu C0 en fonction de uc1 et uc0
+(T, C1, C2) = add4(X, Y, C0); --additionne X et Y avec C0 comme retenu
 
-Z = nor4bits(T);
-N = T[3] and not uc1;
+Z = nor4bits(T); --inverse le tableau T si au moins un bit vaut true alors Z = true (cad si le résultat est non nul Z = true)
+N = T[3] and not uc1; -- N = true si le bit de poids fort de T vaut true et si uc1 vaut false(cad l'opération est interpreté en Ca2)
 
-C = mux1(false, C1, uc1);
-V = (C1 xor C2)and not uc1;
+C = mux1(false, C1, uc1); --choix de la retenue C en fonction de uc1 (cad si uc1 vaut true (resultat à interprété en Base 2) alors C = C1)
+V = (C1 xor C2)and not uc1; --V = true si C1 et C2 sont différents et si uc1 vaut false (cad l'opération est interpreté en Ca2
 tel;
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---Variante
 --ULM1bit
-function ulm1bit(A, B : bool; uc0, uc1 :bool) returns (T: bool);
-var C1, X, Y,AOB : bool;
+--Fonction qui renvoit un booléen de la valeur de l'ULM
+--UC0, UC1 sont les deux bits de contrôle
+-- uc1|uc0|sortie
+--  0 | 0 | a -b  ( = a + (inv(b) + 1)) <=> a + b
+--  0 | 1 | -a    ( = inv(a) + 1) + 0) <=> not a
+--  1 | 0 | a + b ( = a + b) <=> a + b
+--  1 | 1 | b + 1 ( = 0 + b + 1) <=> not b
+function ulm1bit(A, B, cin : bool; uc0, uc1 :bool) returns (T: bool);
+var C1, X, Y : bool;
 let
-AOB = mux1(B, A, uc0);
+X = mux2(A, not A, A, false, uc0, uc1); --choix de l'entrée X de l'additionneur en fonction de uc0 et uc1 : a, not(a), a, 0
+Y = mux2(B, false, B, not B, uc0, uc1); --choix de l'entrée Y de l'additionneur en fonction de uc0 et uc1 : b, 0, b, not(b)
 
-X = mux2(A, not A, A, false, uc0, uc1);
-Y = mux2(B, false, B, not B, uc0, uc1);
-
-(T, C1) = add1bit(X, Y, false);
+(T, C1) = add1bit(X, Y, cin); --additionne X et Y avec cin comme retenu
 
 tel;
 
